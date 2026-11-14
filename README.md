@@ -43,6 +43,8 @@ CBS Open Data (OData API)
 
 | Layer | Tool | Licence | Purpose |
 |---|---|---|---|
+| Language | Python 3 | PSF License | Ingestion, loading, DAG code and unit tests |
+| Python libraries | requests, pandas, pyarrow, psycopg | Apache 2.0 / BSD | API calls, data handling, Parquet files, Postgres connection |
 | Data source | CBS Open Data (OData) | CBS open data terms | Dutch labour market statistics |
 | Orchestration | Apache Airflow | Apache 2.0 | Scheduling and pipeline runs |
 | Warehouse | PostgreSQL | PostgreSQL License | Storage for raw and modelled data |
@@ -91,7 +93,9 @@ nl-labour-market-explorer/
 │
 ├── docker/                       # custom images (Airflow + dbt, report)
 ├── dags/                         # Airflow pipeline DAG
-├── ingestion/                    # CBS client, loader, table config
+├── ingestion/                    # Python: CBS client, loader, table config
+│   ├── cbs_client.py
+│   ├── loader.py
 │   └── config.yml                # CBS table IDs to pull
 ├── dbt_project/
 │   ├── dbt_project.yml
@@ -108,7 +112,8 @@ nl-labour-market-explorer/
 ├── report/                       # Evidence project (pages and queries)
 ├── postgres/init/                # databases, roles, permissions
 ├── tests/                        # Python unit tests for ingestion
-├── docs/                         # architecture, screenshots, decisions
+├── docs/                         # architecture, screenshots
+├── requirements.txt              # Python dependencies
 └── .github/workflows/ci.yml      # lint, tests and dbt build
 ```
 
@@ -119,29 +124,6 @@ nl-labour-market-explorer/
 - Source freshness checks on every CBS table
 - Row count and value range checks on the marts
 - Test results shown on the report's Data quality page
-
-## Design decisions
-
-- **PostgreSQL over DuckDB:** a server database is closer to what most employers run, and it shows you can manage a real database with roles and permissions.
-- **Evidence over Superset or Metabase:** reports are code in git, so they exist as soon as the repo is cloned. Superset and Metabase store dashboards in their own metadata database, which makes the one-command setup fragile.
-- **Read-only role for the report:** Evidence can only read the `marts` schema, which keeps the consumption layer separate from the pipeline.
-- **LocalExecutor:** one Airflow worker without Redis or Celery, which keeps resource use low on a laptop.
-
-Full reasoning and scaling notes are in `docs/decisions.md`.
-
-## Scaling to production
-
-In production I would swap in a managed Airflow service, a cloud warehouse such as Snowflake or BigQuery, and dbt Cloud or a CI-driven dbt job. The models and tests would stay the same.
-
-## Roadmap
-
-- Data contracts with Soda Core as an extra DAG task
-- RAGAS evaluation and a Langfuse trace for a question-answering layer over the marts
-- Kubernetes deployment (K3s locally)
-
-## Data attribution
-
-Data source: Centraal Bureau voor de Statistiek (CBS), Statistics Netherlands. Check the current reuse terms at [opendata.cbs.nl](https://opendata.cbs.nl) before publishing.
 
 ## Licence
 
