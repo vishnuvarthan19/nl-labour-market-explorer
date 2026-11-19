@@ -12,27 +12,13 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
     exit 1
 fi
 
-# 2. Check for Homebrew (required to install system tools cleanly on Mac)
-if ! command -v brew &> /dev/null; then
-    echo "❌ Homebrew is not installed."
-    echo "Please install Homebrew first by running:"
-    echo '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
-    exit 1
-fi
-
-# 3. Check & install Git and Python 3
-echo "==> Step 1: Checking Git and Python 3..."
-if ! command -v git &> /dev/null; then
-    echo "Installing Git..."
-    brew install git
-fi
-
+# 2. Check & install Python 3
 if ! command -v python3 &> /dev/null; then
     echo "Installing Python 3..."
     brew install python
 fi
 
-# 4. Check & install Poetry FIRST
+# 3. Check & install Poetry FIRST
 echo "==> Step 2: Checking and installing Poetry..."
 if ! command -v poetry &> /dev/null; then
     echo "Installing Poetry..."
@@ -43,7 +29,7 @@ else
     echo "✔ Poetry is already installed ($(poetry --version))."
 fi
 
-# 5. Install Project Dependencies via Poetry
+# 4. Install Project Dependencies via Poetry
 if [[ -f "pyproject.toml" ]]; then
     echo "==> Step 3: Installing project Python dependencies..."
     poetry install
