@@ -10,7 +10,6 @@ Thumbs.db
 
 # ----- Environment and secrets (never commit these) -----
 .env
-.env.*
 !.env.example
 *.pem
 *.key
